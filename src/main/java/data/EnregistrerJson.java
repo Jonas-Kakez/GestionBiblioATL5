@@ -1,69 +1,71 @@
 package data;
 
 import com.google.gson.*;
+
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 public class EnregistrerJson {
-    private static final String FICHIER_RESULTATS = "resultats.json";
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public static void log(String type, String message) {
-        JsonObject log = new JsonObject();
-        log.addProperty("timestamp", LocalDateTime.now().toString());
-        log.addProperty("type", type);
-        log.addProperty("message", message);
+    private String nom;
+    private static final String FICHIER_LOG = ConfigurationJson.FICHIER_LOG;
 
-        JsonArray logs = lireLogs();
-        logs.add(log);
-        sauvegarderLogs(logs);
+    public EnregistrerJson(String nom) {
+        this.nom = nom;
     }
 
-    private static JsonArray lireLogs() {
+    public String getNom() {
+        return nom;
+    }
+
+    public void setNom(String nom) {
+        this.nom = nom;
+    }
+
+    public static void log(String action) {
         try {
-            File file = new File(FICHIER_RESULTATS);
-            if (!file.exists()) return new JsonArray();
+            JsonArray logsArray = lireLogs();
+            JsonObject log = new JsonObject();
+            log.addProperty("date", LocalDateTime.now().toString());
+            log.addProperty("action", action);
+            logsArray.add(log);
 
-            String contenu = new String(Files.readAllBytes(file.toPath()));
-            return JsonParser.parseString(contenu).getAsJsonArray();
+            try (FileWriter writer = new FileWriter(FICHIER_LOG)) {
+                Gson gson = new GsonBuilder().setPrettyPrinting().create();
+                gson.toJson(logsArray, writer);
+            }
         } catch (IOException e) {
-            return new JsonArray();
-        }
-    }
-
-    private static void sauvegarderLogs(JsonArray logs) {
-        try (FileWriter writer = new FileWriter(FICHIER_RESULTATS)) {
-            gson.toJson(logs, writer);
-        } catch (IOException e) {
-            System.out.println("Erreur lors de la sauvegarde des logs : " + e.getMessage());
+            System.out.println("Erreur lors de l'enregistrement du log : " + e.getMessage());
         }
     }
 
     public static void afficherLogs() {
-        JsonArray logs = lireLogs();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        try {
+            JsonArray logs = lireLogs();
+            for (JsonElement element : logs) {
+                JsonObject log = element.getAsJsonObject();
+                System.out.println(log.get("date").getAsString() + " - " + log.get("action").getAsString());
+            }
+        } catch (IOException e) {
+            System.out.println("Erreur lors de la lecture des logs : " + e.getMessage());
+        }
+    }
 
-        for (JsonElement element : logs) {
-            JsonObject obj = element.getAsJsonObject();
-            String type = obj.get("type").getAsString();
-            String message = obj.get("message").getAsString();
-            String timestamp = obj.get("timestamp").getAsString();
+    private static JsonArray lireLogs() throws IOException {
+        File fichier = new File(FICHIER_LOG);
+        if (!fichier.exists()) {
+            return new JsonArray();
+        }
 
-            String icone = switch (type) {
-                case "Ajout Livre" -> "📘";
-                case "Ajout Lecteur" -> "👤";
-                case "Emprunt" -> "📖";
-                case "Retour" -> "✅";
-                case "Sanction" -> "⚠️";
-                case "Chargement" -> "⬇️";
-                case "Sauvegarde" -> "💾";
-                default -> "📝";
-            };
-
-            String dateHeure = LocalDateTime.parse(timestamp).format(formatter);
-            System.out.println(icone + " [" + type + "] " + message + " (" + dateHeure + ")");
+        try (Reader reader = Files.newBufferedReader(Paths.get(FICHIER_LOG))) {
+            JsonElement element = JsonParser.parseReader(reader);
+            if (element != null && element.isJsonArray()) {
+                return element.getAsJsonArray();
+            } else {
+                return new JsonArray(); // vide si fichier vide ou invalide
+            }
         }
     }
 }

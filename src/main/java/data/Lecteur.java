@@ -61,4 +61,8 @@ public class Lecteur extends Personne {
     public String getAdresse() {
         return adresse;
     }
+
+    public int getNumeroAbonnement() {
+        return numAbonnement;
+    }
 }

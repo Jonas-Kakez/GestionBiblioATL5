@@ -10,7 +10,6 @@ public class ScienceFiction extends Livre{
         this.univers = univers;
         this.technologieFictive = technologieFictive;
         this.anneeFuture = anneeFuture;
-
     }
 
 

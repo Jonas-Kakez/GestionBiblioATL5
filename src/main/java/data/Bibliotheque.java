@@ -8,8 +8,38 @@ public class Bibliotheque extends Personne{
     private String horaire;
     private List<Livre>livres;
 
+    public Bibliotheque(String nom, String adresse, String horaire, List<Livre> livres) {
+        super(nom);
+        this.adresse = adresse;
+        this.horaire = horaire;
+        this.livres = livres;
+    }
 
-    public Bibliotheque(String nom, String adresse,String horaire) {
+    public String getAdresse() {
+        return adresse;
+    }
+
+    public void setAdresse(String adresse) {
+        this.adresse = adresse;
+    }
+
+    public String getHoraire() {
+        return horaire;
+    }
+
+    public void setHoraire(String horaire) {
+        this.horaire = horaire;
+    }
+
+    public List<Livre> getLivres() {
+        return livres;
+    }
+
+    public void setLivres(List<Livre> livres) {
+        this.livres = livres;
+    }
+
+    public Bibliotheque(String nom, String adresse, String horaire) {
         super(nom);
         this.adresse=adresse;
         this.horaire=horaire;
@@ -25,5 +55,14 @@ public class Bibliotheque extends Personne{
         for (Livre livre : livres){
             System.out.println("-" + livre.getTitre()+ "(Disponible :" + livre.isDisponible()+")");
         }
+    }
+
+    public Livre getLivreParTitre(String titre) {
+
+        return null;
+    }
+
+    public void supprimerLivre(Livre livre) {
+
     }
 }

@@ -1,5 +1,7 @@
 package data;
 
+import java.util.Date;
+
 public class Magazine extends Livre{
     private String edition;
     private String periodicite;
@@ -12,6 +14,9 @@ public class Magazine extends Livre{
         this.nomMagazine = nomMagazine;
     }
 
+    public Magazine(String titre, String auteur, String isbn, Date datePublication, boolean disponible) {
+        super(titre, auteur, isbn, datePublication, disponible);
+    }
 
     @Override
     public void afficherDetails() {
